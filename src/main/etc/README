@@ -1,0 +1,16 @@
+To generate png icons from svg source file :
+
+inkscape -z -e src/main/ic_launcher-web.png -w 512 -h 512 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e src/main/res/mipmap-hdpi/ic_launcher.png -w 72 -h 72 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e src/main/res/mipmap-mdpi/ic_launcher.png -w 48 -h 48 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e src/main/res/mipmap-xhdpi/ic_launcher.png -w 96 -h 96 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e src/main/res/mipmap-xxhdpi/ic_launcher.png -w 144 -h 144 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e src/main/res/mipmap-xxxhdpi/ic_launcher.png -w 192 -h 192 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e /opt/esup-nfc-tag-server/src/main/webapp/images/favicon-16x16.png -w 16 -h 16 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e /opt/esup-nfc-tag-server/src/main/webapp/images/favicon-32x32.png -w 32 -h 32 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e /opt/esup-nfc-tag-server/src/main/webapp/images/favicon-96x96.png -w 96 -h 96 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e /opt/esup-nfc-tag-server/src/main/webapp/images/favicon-192x192.png -w 192 -h 192 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e /opt/esup-nfc-tag-server/src/main/webapp/images/logo.png -w 72 -h 72 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e /opt/esup-nfc-tag-server/src/main/webapp/images/logo-xl.png -w 434 -h 434 src/main/etc/nfctagdroid-icon.svg
+inkscape -z -e /opt/esup-nfc-tag-server/src/main/webapp/images/logo-xs.png -w 36 -h 36 src/main/etc/nfctagdroid-icon.svg
+
