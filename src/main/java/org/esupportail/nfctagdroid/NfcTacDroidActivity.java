@@ -62,6 +62,9 @@ import org.esupportail.nfctagdroid.localstorage.LocalStorageJavaScriptInterface;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Collections;
@@ -85,6 +88,8 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
 
         super.onCreate(savedInstanceState);
         ESUP_NFC_TAG_SERVER_URL = getEsupNfcTagServerUrl(getApplicationContext());
+        //To keep session for desfire async requests
+        CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
         LocalStorage.getInstance(getApplicationContext());
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(getApplicationContext()));
         setContentView(R.layout.activity_main);
@@ -144,19 +149,6 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
 
         view.setWebViewClient(new WebViewClient() {
             public void onPageFinished(WebView view, String url) {
-            }
-
-            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                try {
-                    log.info("Webview error : " + description + " - failingUrl : " + failingUrl);
-                    String content = IOUtils.toString(getAssets().open("error.html"))
-                            .replaceAll("%ERR_TITLE%", getString(R.string.msg_webview_ko))
-                            .replaceAll("%ERR_URL%", url)
-                            .replaceAll("%ERR_URL_INDEX%", url);
-                    view.loadDataWithBaseURL("file:///android_asset/error.html", content, "text/html", "UTF-8", null);
-                } catch (IOException e) {
-                    log.error("Exception during error webview display", e);
-                }
             }
         });
 
@@ -332,7 +324,7 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
                 }
                 return res1.toString();
             }
-        } catch (SocketException e) {
+        } catch (Exception e) {
             throw new NfcTagDroidException("can't get mac address", e);
         }
         return "";
