@@ -17,7 +17,6 @@
  */
 package org.esupportail.nfctagdroid.localstorage;
 
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -28,31 +27,18 @@ import android.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Used as replacement of the localStorage of the webviews.
- */
 public class LocalStorage extends SQLiteOpenHelper {
 
     private static LocalStorage mInstance;
 
-    private static Context mContext;
+    private static SQLiteDatabase database;
 
     private static final Logger log = LoggerFactory.getLogger(LocalStorage.class);
 
-    /**
-     * the name of the table
-     */
     public static final String LOCALSTORAGE_TABLE_NAME = "local_storage_table";
 
-
-    /**
-     * the id column of the table LOCALSTORAGE_TABLE_NAME
-     */
     public static final String LOCALSTORAGE_ID = "_id";
 
-    /**
-     * the value column of the table LOCALSTORAGE_TABLE_NAME
-     */
     public static final String LOCALSTORAGE_VALUE = "value";
 
     private static final int DATABASE_VERSION = 2;
@@ -61,16 +47,10 @@ public class LocalStorage extends SQLiteOpenHelper {
             + " (" + LOCALSTORAGE_ID + " TEXT PRIMARY KEY, "
             + LOCALSTORAGE_VALUE + " TEXT NOT NULL);";
 
-
-    /**
-     * Returns an instance of LocalStorage
-     * @param ctx : a Context used to create the database
-     * @return the instance of LocalStorage of the application or a new one if it has not been created before.
-     */
     public static LocalStorage getInstance(Context ctx) {
-        mContext = ctx;
         if (mInstance == null) {
             mInstance = new LocalStorage(ctx.getApplicationContext());
+            database = mInstance.getReadableDatabase();
         }
         return mInstance;
     }
@@ -92,11 +72,6 @@ public class LocalStorage extends SQLiteOpenHelper {
     }
 
     public static String getValue(String valueName){
-
-        LocalStorage localStorageDBHelper = LocalStorage.getInstance(mContext);
-        SQLiteDatabase database = localStorageDBHelper.getReadableDatabase();
-
-        database = localStorageDBHelper.getReadableDatabase();
         Cursor cursor = database.query(LOCALSTORAGE_TABLE_NAME,
                 null,
                 LOCALSTORAGE_ID + " = ?",
@@ -104,21 +79,15 @@ public class LocalStorage extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             return cursor.getString(1);
         }
-
         cursor.close();
-        database.close();
         return "";
     }
 
     public static void updateValue(String key, String value){
         log.info(key+" is set to : "+value);
-        LocalStorage localStorageDBHelper = LocalStorage.getInstance(mContext);
-        SQLiteDatabase database = localStorageDBHelper.getReadableDatabase();
-        database = localStorageDBHelper.getReadableDatabase();
         ContentValues values = new ContentValues();
         values.put(LocalStorage.LOCALSTORAGE_ID, key);
         values.put(LocalStorage.LOCALSTORAGE_VALUE, value);
         database.update(LocalStorage.LOCALSTORAGE_TABLE_NAME, values, LocalStorage.LOCALSTORAGE_ID + "='" + key + "'", null);
-        database.close();
     }
 }
