@@ -82,10 +82,11 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
     public static String AUTH_TYPE;
     public static LocalStorage localStorageDBHelper;
     private static final Logger log = LoggerFactory.getLogger(NfcTacDroidActivity.class);
+    private static WebView view;
+    private static String url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         ESUP_NFC_TAG_SERVER_URL = getEsupNfcTagServerUrl(getApplicationContext());
         //To keep session for desfire async requests
@@ -99,8 +100,8 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
         String numeroId = localStorageDBHelper.getValue("numeroId");
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         String imei = telephonyManager.getDeviceId();
-        final String url = ESUP_NFC_TAG_SERVER_URL + "/nfc-index?numeroId=" + numeroId + "&imei=" + imei + "&macAddress=" + getMacAddr() + "&apkVersion=" + getApkVersion();
-        final WebView view = (WebView) this.findViewById(R.id.webView);
+        url = ESUP_NFC_TAG_SERVER_URL + "/nfc-index?numeroId=" + numeroId + "&imei=" + imei + "&macAddress=" + getMacAddr() + "&apkVersion=" + getApkVersion();
+        view = (WebView) this.findViewById(R.id.webView);
         view.clearCache(true);
         view.addJavascriptInterface(new LocalStorageJavaScriptInterface(this.getApplicationContext()), "AndroidLocalStorage");
         view.addJavascriptInterface(new AndroidJavaScriptInterface(this.getApplicationContext()), "Android");
@@ -166,12 +167,20 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
     @Override
     protected void onPause() {
         super.onPause();
+        log.info("Enter pause mode");
+        view.loadUrl("about:blank");
+        view.onPause();
+        view.pauseTimers();
         mAdapter.disableReaderMode(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        log.info("App is resume");
+        view.onResume();
+        view.loadUrl(url);
+        view.resumeTimers();
         ESUP_NFC_TAG_SERVER_URL = getEsupNfcTagServerUrl(getApplicationContext());
         checkHardware(mAdapter);
         mAdapter.enableReaderMode(this, this, NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS, null);
@@ -252,6 +261,7 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
         }
 
         if (!isOnline()) {
+            view.loadUrl("about:blank");
             Toast.makeText(this, getString(R.string.msg_activ_network), Toast.LENGTH_LONG).show();
             startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
         }

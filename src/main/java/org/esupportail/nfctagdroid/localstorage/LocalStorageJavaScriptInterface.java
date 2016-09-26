@@ -27,10 +27,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LocalStorageJavaScriptInterface {
+
     private Context mContext;
     private LocalStorage localStorageDBHelper;
     private SQLiteDatabase database;
     private static final Logger log = LoggerFactory.getLogger(LocalStorageJavaScriptInterface.class);
+
     public LocalStorageJavaScriptInterface(Context c) {
         mContext = c;
         localStorageDBHelper = LocalStorage.getInstance(mContext);
