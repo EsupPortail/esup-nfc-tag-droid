@@ -200,6 +200,7 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
                     toastText = authResult.getMsg();
                     if (authResult.isError()) {
                         log.warn(getString(R.string.log_msg_tag_ko));
+                        localStorageDBHelper.updateValue("readyToScan", "ok");
                     }else{
                         rStatus = R.raw.success;
                         log.info(getString(R.string.log_msg_tag_ok) + " : " + authResult.getMsg().replace("\n", " "));
@@ -208,14 +209,18 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
                     log.info(getString(R.string.log_msg_invalid_auth), e);
                     toastText = getString(R.string.msg_tag_ko);
                     runOnUiThread(ToastThread.getInstance(getApplicationContext(), rStatus, toastText));
+
                 } catch (NfcTagDroidPleaseRetryTagException e) {
                     log.warn(getString(R.string.log_msg_retry_auth), e);
                     toastText = getString(R.string.msg_retry);
                     runOnUiThread(ToastThread.getInstance(getApplicationContext(), rStatus, toastText));
+
                 } catch (Exception e) {
                     log.error(getString(R.string.log_msg_unknow_err), e);
                     toastText = getString(R.string.msg_unknow_err);
                     runOnUiThread(ToastThread.getInstance(getApplicationContext(), rStatus, toastText));
+                    localStorageDBHelper.updateValue("readyToScan", "ok");
+
                 }
                 MediaPlayer mp = MediaPlayer.create(getApplicationContext(), rStatus);
                 mp.start();

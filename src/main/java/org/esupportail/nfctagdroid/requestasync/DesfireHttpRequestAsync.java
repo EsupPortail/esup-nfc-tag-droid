@@ -36,7 +36,7 @@ public class DesfireHttpRequestAsync extends AsyncTask<String, String, String> {
 
         try {
             String numeroId = LocalStorage.getValue("numeroId");
-            URL url = new URL(NfcTacDroidActivity.ESUP_NFC_TAG_SERVER_URL + "/desfire-ws?numeroId=" + numeroId + "&cmd=" + params[0]);
+            URL url = new URL(NfcTacDroidActivity.ESUP_NFC_TAG_SERVER_URL + "/desfire-ws/"+params[0]+"&numeroId=" + numeroId);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             InputStream inputStream = conn.getInputStream();

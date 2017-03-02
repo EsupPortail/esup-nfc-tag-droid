@@ -23,6 +23,7 @@ import android.nfc.tech.IsoDep;
 
 import org.esupportail.nfctagdroid.exceptions.NfcTagDroidException;
 import org.esupportail.nfctagdroid.exceptions.NfcTagDroidPleaseRetryTagException;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,46 +55,35 @@ public class DesfireAuthProvider {
         if (isoDep == null) {
             throw new NfcTagDroidException("Did not detect a Desfire tag ");
         }
+
         try {
+            String[] command = new String[2];
+            String result = "";
+            command[1] = "1";
             isoDep.connect();
-            //Phase 0
-            DesfireHttpRequestAsync task0 = new DesfireHttpRequestAsync();
-            String selectCmd = "";
-            selectCmd = task0.execute(new String[]{"selectApp"}).get(time, TimeUnit.MILLISECONDS);
-            byte[] selectedAppResult = isoDep.transceive(HexaUtils.hexStringToByteArray(selectCmd));
-            log.debug("Select return : " + HexaUtils.byteArrayToHexString(selectedAppResult));
 
-            // Phase 1
-            DesfireHttpRequestAsync task1 = new DesfireHttpRequestAsync();
-            String startAuthCmd = "";
-            startAuthCmd = task1.execute(new String[]{"rndB"}).get(time, TimeUnit.MILLISECONDS);
-            byte[] startAuthResult = isoDep.transceive(HexaUtils.hexStringToByteArray(startAuthCmd));
-            log.debug("Start auth return : " + HexaUtils.byteArrayToHexString(startAuthResult));
+            while (!command[1].equals("OK") && !command[1].equals("ERROR")) {
 
-            // Phase 2
-            DesfireHttpRequestAsync task2 = new DesfireHttpRequestAsync();
-            String rndB = HexaUtils.byteArrayToHexString(startAuthResult);
-            String authCmd = "";
-            authCmd = task2.execute(new String[]{"rndAPrimEnc&rndb=" + rndB.substring(0, rndB.length() - 4)}).get(time, TimeUnit.MILLISECONDS);
-            byte[] authResult = isoDep.transceive(HexaUtils.hexStringToByteArray(authCmd));
-            log.debug("Auth return : " + HexaUtils.byteArrayToHexString(authResult));
+                DesfireHttpRequestAsync desfireHttpRequestAsync = new DesfireHttpRequestAsync();
+                response = desfireHttpRequestAsync.execute(new String[]{command[1]+"/?result=" + result}).get(time, TimeUnit.MILLISECONDS);
+                try {
+                    JSONArray jsonArr = new JSONArray(response);
+                    command[0] = jsonArr.getString(0);
+                    command[1] = jsonArr.getString(1);
 
-            // Phase 3
-            DesfireHttpRequestAsync task3 = new DesfireHttpRequestAsync();
-            String readCmd = "";
-            readCmd = task3.execute(new String[]{"readFile"}).get(time, TimeUnit.MILLISECONDS);
-            byte[] readResult = isoDep.transceive(HexaUtils.hexStringToByteArray(readCmd));
-            log.debug("Read return : " + HexaUtils.byteArrayToHexString(readResult));
+                    if (!command[1].equals("OK") && !command[1].equals("ERROR")) {
+                        byte[] byteResult = isoDep.transceive(HexaUtils.hexStringToByteArray(command[0]));
+                        result = HexaUtils.byteArrayToHexString(byteResult);
+                    }
+                    log.debug("command step: " + command[1]);
+                    log.debug("command to send: " + command[0]);
+                    log.debug("result : " + result);
+                }catch(Exception e){
+                    throw new NfcTagDroidException(e);
+                }
+            }
+            response = command[0];
 
-            // Phase 4
-            DesfireHttpRequestAsync task4 = new DesfireHttpRequestAsync();
-            String desfireId = HexaUtils.byteArrayToHexString(readResult);
-            String rndAPrimEnc = HexaUtils.byteArrayToHexString(authResult);
-            String getIdp2s = "desfireRequest" +
-                    "&encDesfireId=" + desfireId.substring(0, desfireId.length() - 4) +
-                    "&rndAPrimEnc=" + rndAPrimEnc.substring(0, rndAPrimEnc.length() - 4);
-
-            response = task4.execute(new String[]{getIdp2s}).get(time, TimeUnit.MILLISECONDS);
         }catch(TimeoutException e) {
             log.warn("Time out");
             throw new NfcTagDroidException("Time out Desfire", e);
@@ -114,6 +104,7 @@ public class DesfireAuthProvider {
                 throw new NfcTagDroidException(e);
             }
         }
+
         return response;
     }
 }
