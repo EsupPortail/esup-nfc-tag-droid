@@ -47,6 +47,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.commons.io.IOUtils;
@@ -245,7 +246,9 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
             }
 
             try {
-                authResult = new ObjectMapper().readValue(response, AuthResultBean.class);
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                authResult = objectMapper.readValue(response, AuthResultBean.class);
             } catch (IOException e) {
                 throw new NfcTagDroidException(getString(R.string.msg_json_err), e);
             }
