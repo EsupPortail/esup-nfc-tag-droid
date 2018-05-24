@@ -33,7 +33,7 @@ import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.esupportail.nfctagdroid.NfcTacDroidActivity;
+import org.esupportail.nfctagdroid.NfcTagDroidActivity;
 import org.esupportail.nfctagdroid.localstorage.LocalStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +51,7 @@ public class CsnHttpRequestAsync extends AsyncTask<String, String, String> {
         String jsonInString = null;
         try {
             jsonInString = mapper.writeValueAsString(nfcMsg);
-            URL url = new URL(NfcTacDroidActivity.ESUP_NFC_TAG_SERVER_URL + "/csn-ws");
+            URL url = new URL(NfcTagDroidActivity.ESUP_NFC_TAG_SERVER_URL + "/csn-ws");
             log.info("Will call csn-ws on : " + url);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");

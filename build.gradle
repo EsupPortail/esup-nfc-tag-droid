@@ -3,6 +3,7 @@ import java.text.SimpleDateFormat
 
 repositories {
     mavenCentral()
+    google()
 }
 
 buildscript {
@@ -12,10 +13,11 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
+        google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.1.2'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
     }
 }
@@ -38,7 +40,7 @@ def buildVersionName() {
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "org.esupportail.nfctagdroid"
@@ -75,14 +77,14 @@ android {
 
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:22.2.1'
-    compile 'org.slf4j:slf4j-api:1.7.19'
-    compile 'com.github.tony19:logback-android-classic:1.1.1-4'
-    compile 'com.github.tony19:logback-android-core:1.1.1-4'
-    compile 'com.sun.mail:android-mail:1.5.5'
-    compile 'com.sun.mail:android-activation:1.5.5'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.4.1'
-    compile 'commons-io:commons-io:2.5'
+    api 'com.android.support:appcompat-v7:22.2.1'
+    api 'org.slf4j:slf4j-api:1.7.19'
+    api 'com.github.tony19:logback-android-classic:1.1.1-4'
+    api 'com.github.tony19:logback-android-core:1.1.1-4'
+    api 'com.sun.mail:android-mail:1.5.5'
+    api 'com.sun.mail:android-activation:1.5.5'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.4.1'
+    api 'commons-io:commons-io:2.5'
 }
 
 

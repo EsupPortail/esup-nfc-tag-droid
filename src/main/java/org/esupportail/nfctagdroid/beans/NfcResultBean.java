@@ -17,19 +17,37 @@
  */
 package org.esupportail.nfctagdroid.beans;
 
-public class AuthResultBean {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-    private static enum CODE {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class NfcResultBean {
+
+    public static enum CODE {
         ERROR,
-        OK
+        OK,
+        END
     }
 
     private CODE code;
+
+    private String fullApdu;
 
     private String msg;
 
     public void setCode(CODE code) {
         this.code = code;
+    }
+
+    public CODE getCode() {
+        return code;
+    }
+
+    public String getFullApdu() {
+        return fullApdu;
+    }
+
+    public void setFullApdu(String fullApdu) {
+        this.fullApdu = fullApdu;
     }
 
     public String getMsg() {
@@ -39,9 +57,4 @@ public class AuthResultBean {
     public void setMsg(String msg) {
         this.msg = msg;
     }
-
-    public boolean isError() {
-        return CODE.ERROR.equals(this.code);
-    }
-
 }

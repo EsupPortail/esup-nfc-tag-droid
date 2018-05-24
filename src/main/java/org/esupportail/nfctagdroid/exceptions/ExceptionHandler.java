@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
-import org.esupportail.nfctagdroid.NfcTacDroidActivity;
+import org.esupportail.nfctagdroid.NfcTagDroidActivity;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -39,7 +39,7 @@ public class ExceptionHandler implements java.lang.Thread.UncaughtExceptionHandl
     private final String LINE_SEPARATOR = "\n";
     private int i = 0;
 
-    static private final Logger log = LoggerFactory.getLogger(NfcTacDroidActivity.class);
+    static private final Logger log = LoggerFactory.getLogger(NfcTagDroidActivity.class);
     static private final Marker MARKER = MarkerFactory.getMarker("NOTIFY_ADMIN");
 
     public ExceptionHandler(Context myContext) {
@@ -86,7 +86,7 @@ public class ExceptionHandler implements java.lang.Thread.UncaughtExceptionHandl
 
             errorReport.append("************ END OF ERROR ************");
 
-            log.error(MARKER, errorReport.toString());
+            log.error(errorReport.toString());
 
             // sleep 1 sec. to let the phone sent mail and to avoid eventually emails loop freezing phone
             try {

@@ -35,7 +35,7 @@
     <string name="msg_auth_err">Authentification avortée</string>
 
     <string name="log_msg_tag_ok">Badge valide avec le retour</string>
-    <string name="log_msg_tag_ko">Badge badge invalide passé le</string>
+    <string name="log_msg_tag_ko">Badge invalide passé le</string>
     <string name="log_msg_invalid_auth">LeodridInvalidTagException durant l\'authentification</string>
     <string name="log_msg_retry_auth">LeodridPleaseRetryTagException durant l\'authentification</string>
     <string name="log_msg_unknow_err">Erreur inconnue durant l\'authentification</string>

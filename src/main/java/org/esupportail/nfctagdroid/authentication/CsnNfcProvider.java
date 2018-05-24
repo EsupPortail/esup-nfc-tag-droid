@@ -19,10 +19,14 @@ package org.esupportail.nfctagdroid.authentication;
 
 import android.nfc.Tag;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.esupportail.nfctagdroid.beans.NfcResultBean;
 import org.esupportail.nfctagdroid.exceptions.NfcTagDroidException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -31,19 +35,21 @@ import org.esupportail.nfctagdroid.requestasync.CsnHttpRequestAsync;
 import org.esupportail.nfctagdroid.utils.HexaUtils;
 
 
-public class CsnAuthProvider {
+public class CsnNfcProvider {
 
-    static private final Logger log = LoggerFactory.getLogger(DesfireAuthProvider.class);
+    static private final Logger log = LoggerFactory.getLogger(DesfireNfcProvider.class);
     static private final int time = 5000;
 
-    public String csnAuth(Tag tag) {
-        log.info("Detected CSN tag with id : " + HexaUtils.swapPairs(tag.getId()));
+    public NfcResultBean csnRead(Tag tag) {
+        log.info("Detected CSN tag with id : " + tag.getId());
         String cardId = HexaUtils.byteArrayToHexString(tag.getId());
         String cardIdArr[] = cardId.split(" ");
         CsnHttpRequestAsync task = new CsnHttpRequestAsync();
-        String response = "ERROR";
+        NfcResultBean nfcResult = new NfcResultBean();
+        nfcResult.setCode(NfcResultBean.CODE.ERROR);
         try {
-            response = task.execute(cardIdArr).get(time, TimeUnit.MILLISECONDS);
+            String response = task.execute(cardIdArr).get(time, TimeUnit.MILLISECONDS);
+            nfcResult = new ObjectMapper().readValue(response, NfcResultBean.class);
         } catch (TimeoutException e){
             log.warn("Time out");
             throw new NfcTagDroidException("Time out CSN", e);
@@ -51,8 +57,10 @@ public class CsnAuthProvider {
             throw new NfcTagDroidException("InterruptedException", e);
         } catch (ExecutionException e) {
             throw new NfcTagDroidException("InterruptedException", e);
+        }  catch (IOException e) {
+            throw new NfcTagDroidException(e);
         }
-        return response;
+        return nfcResult;
     }
 
 

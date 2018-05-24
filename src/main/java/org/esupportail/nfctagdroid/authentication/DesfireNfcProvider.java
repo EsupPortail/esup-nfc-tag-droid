@@ -21,9 +21,11 @@ import android.nfc.Tag;
 import android.nfc.TagLostException;
 import android.nfc.tech.IsoDep;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.esupportail.nfctagdroid.beans.NfcResultBean;
 import org.esupportail.nfctagdroid.exceptions.NfcTagDroidException;
 import org.esupportail.nfctagdroid.exceptions.NfcTagDroidPleaseRetryTagException;
-import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,20 +38,26 @@ import org.esupportail.nfctagdroid.exceptions.NfcTagDroidInvalidTagException;
 import org.esupportail.nfctagdroid.requestasync.DesfireHttpRequestAsync;
 import org.esupportail.nfctagdroid.utils.HexaUtils;
 
-public class DesfireAuthProvider {
+public class DesfireNfcProvider {
 
-    static private final Logger log = LoggerFactory.getLogger(DesfireAuthProvider.class);
+    static private final Logger log = LoggerFactory.getLogger(DesfireNfcProvider.class);
     static private final int time = 5000;
 
-    public String desfireAuth(Tag tag) throws ExecutionException, InterruptedException {
-        String response = "ERROR";
+    public NfcResultBean desfireRead(Tag tag) throws ExecutionException, InterruptedException {
+
+        String cardId = HexaUtils.byteArrayToHexString(tag.getId());
+
+        NfcResultBean nfcResult = new NfcResultBean();
+        nfcResult.setCode(NfcResultBean.CODE.ERROR);
+
+        String result = "";
 
         IsoDep isoDep = null;
         String[] techList = tag.getTechList();
         for (String tech : techList) {
             if (tech.equals(IsoDep.class.getName())) {
                 isoDep = IsoDep.get(tag);
-                log.info("Detected Desfire tag with id : " + HexaUtils.swapPairs(tag.getId()));
+                log.info("Detected Desfire tag with id : " + tag.getId());
             }
         }
         if (isoDep == null) {
@@ -57,34 +65,30 @@ public class DesfireAuthProvider {
         }
 
         try {
-            String[] command = new String[2];
-            String result = "";
-            command[1] = "1";
             isoDep.connect();
 
-            while (!command[1].equals("OK") && !command[1].equals("ERROR")) {
-
+            while (true) {
                 DesfireHttpRequestAsync desfireHttpRequestAsync = new DesfireHttpRequestAsync();
-                response = desfireHttpRequestAsync.execute(new String[]{command[1]+"/?result=" + result}).get(time, TimeUnit.MILLISECONDS);
+                String response = desfireHttpRequestAsync.execute(new String[]{"result=" + result, "cardId=" + cardId}).get(time, TimeUnit.MILLISECONDS);
                 try {
-                    JSONArray jsonArr = new JSONArray(response);
-                    command[0] = jsonArr.getString(0);
-                    command[1] = jsonArr.getString(1);
-
-                    if (!command[1].equals("OK") && !command[1].equals("ERROR")) {
-                        byte[] byteResult = isoDep.transceive(HexaUtils.hexStringToByteArray(command[0]));
-                        result = HexaUtils.byteArrayToHexString(byteResult);
-                    }
-                    log.debug("command step: " + command[1]);
-                    log.debug("command to send: " + command[0]);
-                    log.debug("result : " + result);
-                }catch(Exception e){
+                    nfcResult = new ObjectMapper().readValue(response, NfcResultBean.class);
+                } catch (IOException e) {
                     throw new NfcTagDroidException(e);
                 }
-            }
-            response = command[0];
 
-        }catch(TimeoutException e) {
+                if (!NfcResultBean.CODE.END.equals(nfcResult.getCode()) && !NfcResultBean.CODE.ERROR.equals(nfcResult.getCode())) {
+                    String command = nfcResult.getFullApdu();
+                    log.debug("command to send: " + command);
+                    byte[] byteResult = isoDep.transceive(HexaUtils.hexStringToByteArray(command));
+                    result = HexaUtils.byteArrayToHexString(byteResult);
+                    log.debug("result : " + result);
+                    nfcResult.setFullApdu(result);
+                } else {
+                    break;
+                }
+            }
+
+        } catch(TimeoutException e) {
             log.warn("Time out");
             throw new NfcTagDroidException("Time out Desfire", e);
         } catch (TagLostException e) {
@@ -105,6 +109,6 @@ public class DesfireAuthProvider {
             }
         }
 
-        return response;
+        return nfcResult;
     }
 }

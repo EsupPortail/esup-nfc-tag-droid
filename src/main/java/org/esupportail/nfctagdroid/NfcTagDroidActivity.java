@@ -45,20 +45,17 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.commons.io.IOUtils;
 import org.esupportail.nfctagdroid.exceptions.NfcTagDroidException;
 import org.esupportail.nfctagdroid.exceptions.NfcTagDroidInvalidTagException;
 import org.esupportail.nfctagdroid.exceptions.NfcTagDroidPleaseRetryTagException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.esupportail.nfctagdroid.authentication.CsnAuthProvider;
-import org.esupportail.nfctagdroid.authentication.DesfireAuthProvider;
-import org.esupportail.nfctagdroid.beans.AuthResultBean;
+import org.esupportail.nfctagdroid.authentication.CsnNfcProvider;
+import org.esupportail.nfctagdroid.authentication.DesfireNfcProvider;
+import org.esupportail.nfctagdroid.beans.NfcResultBean;
 import org.esupportail.nfctagdroid.localstorage.LocalStorageJavaScriptInterface;
 
 import java.io.IOException;
@@ -67,7 +64,6 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -76,15 +72,16 @@ import java.util.concurrent.ExecutionException;
 import org.esupportail.nfctagdroid.exceptions.ExceptionHandler;
 import org.esupportail.nfctagdroid.localstorage.LocalStorage;
 
-public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCallback{
+public class NfcTagDroidActivity extends Activity implements NfcAdapter.ReaderCallback{
 
     private NfcAdapter mAdapter;
     public static String ESUP_NFC_TAG_SERVER_URL = null;
-    public static String AUTH_TYPE;
+    public static String NFC_TYPE;
     public static LocalStorage localStorageDBHelper;
-    private static final Logger log = LoggerFactory.getLogger(NfcTacDroidActivity.class);
+    private static final Logger log = LoggerFactory.getLogger(NfcTagDroidActivity.class);
     private static WebView view;
     private static String url;
+    private static ProgressBar progressBar = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +100,8 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
         String imei = telephonyManager.getDeviceId();
         url = ESUP_NFC_TAG_SERVER_URL + "/nfc-index?numeroId=" + numeroId + "&imei=" + imei + "&macAddress=" + getMacAddr() + "&apkVersion=" + getApkVersion();
         view = (WebView) this.findViewById(R.id.webView);
+        progressBar = (ProgressBar) findViewById(R.id.loadingPanel);
+        //progressBar.setVisibility(View.INVISIBLE);
         view.clearCache(true);
         view.addJavascriptInterface(new LocalStorageJavaScriptInterface(this.getApplicationContext()), "AndroidLocalStorage");
         view.addJavascriptInterface(new AndroidJavaScriptInterface(this.getApplicationContext()), "Android");
@@ -112,7 +111,7 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
             @Override
             public void onProgressChanged(WebView view, int progress) {
                 if (progress == 100) {
-                    AUTH_TYPE = localStorageDBHelper.getValue("authType");
+                    NFC_TYPE = localStorageDBHelper.getValue("authType");
                 }
             }
 
@@ -128,6 +127,7 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
             @Override
             public boolean onLongClick(View v) {
                 view.reload();
+                findViewById(R.id.loadingPanel).setVisibility(View.INVISIBLE);
                 return true;
             }
         });
@@ -191,31 +191,39 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
     public void onTagDiscovered(final Tag tag) {
         if (localStorageDBHelper.getValue("readyToScan").equals("ok")) {
 
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
+            });
+
             localStorageDBHelper.updateValue("readyToScan", "ko");
             synchronized (tag) {
                 String toastText = "";
                 int rStatus = R.raw.fail;
 
                 try {
-                    AuthResultBean authResult = auth(tag);
-                    toastText = authResult.getMsg();
-                    if (authResult.isError()) {
+                    NfcResultBean nfcResult = read(tag);
+                    if (NfcResultBean.CODE.ERROR.equals(nfcResult.getCode())) {
                         log.warn(getString(R.string.log_msg_tag_ko));
+                        toastText = nfcResult.getMsg();
+                        runOnUiThread(ToastThread.getInstance(getApplicationContext(), rStatus, toastText));
                         localStorageDBHelper.updateValue("readyToScan", "ok");
-                    }else{
+                    } else{
                         rStatus = R.raw.success;
-                        log.info(getString(R.string.log_msg_tag_ok) + " : " + authResult.getMsg().replace("\n", " "));
+                        log.info(getString(R.string.log_msg_tag_ok) + " : " + nfcResult.getFullApdu().replace("\n", " "));
                     }
                 } catch (NfcTagDroidInvalidTagException e) {
                     log.info(getString(R.string.log_msg_invalid_auth), e);
                     toastText = getString(R.string.msg_tag_ko);
                     runOnUiThread(ToastThread.getInstance(getApplicationContext(), rStatus, toastText));
-
+                    localStorageDBHelper.updateValue("readyToScan", "ok");
                 } catch (NfcTagDroidPleaseRetryTagException e) {
                     log.warn(getString(R.string.log_msg_retry_auth), e);
                     toastText = getString(R.string.msg_retry);
                     runOnUiThread(ToastThread.getInstance(getApplicationContext(), rStatus, toastText));
-
+                    localStorageDBHelper.updateValue("readyToScan", "ok");
                 } catch (Exception e) {
                     log.error(getString(R.string.log_msg_unknow_err), e);
                     toastText = getString(R.string.msg_unknow_err);
@@ -225,6 +233,12 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
                 }
                 MediaPlayer mp = MediaPlayer.create(getApplicationContext(), rStatus);
                 mp.start();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.INVISIBLE);
+                    }
+                });
             }
         } else {
             log.warn("onTagDiscovered but localStorageDBHelper.getValue(\"readyToScan\") = " + localStorageDBHelper.getValue("readyToScan"));
@@ -232,28 +246,18 @@ public class NfcTacDroidActivity extends Activity implements NfcAdapter.ReaderCa
 
     }
 
-    protected AuthResultBean auth(Tag tag) throws ExecutionException, InterruptedException {
-
-        AuthResultBean authResult = null;
+    protected NfcResultBean read(Tag tag) throws ExecutionException, InterruptedException {
+        NfcResultBean nfcResult = null;
         if (tag != null) {
-            String response = null;
-            if (AUTH_TYPE.equals("DESFIRE")) {
-                DesfireAuthProvider desfireAuthProvider = new DesfireAuthProvider();
-                response = desfireAuthProvider.desfireAuth(tag);
-            } else if (AUTH_TYPE.equals("CSN")) {
-                CsnAuthProvider csnAuthProvider = new CsnAuthProvider();
-                response = csnAuthProvider.csnAuth(tag);
-            }
-
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                authResult = objectMapper.readValue(response, AuthResultBean.class);
-            } catch (IOException e) {
-                throw new NfcTagDroidException(getString(R.string.msg_json_err), e);
+            if (NFC_TYPE.equals("DESFIRE")) {
+                DesfireNfcProvider desfireNfcProvider = new DesfireNfcProvider();
+                nfcResult = desfireNfcProvider.desfireRead(tag);
+            } else if (NFC_TYPE.equals("CSN")) {
+                CsnNfcProvider csnNfcProvider = new CsnNfcProvider();
+                nfcResult = csnNfcProvider.csnRead(tag);
             }
         }
-        return authResult;
+        return nfcResult;
     }
 
     public boolean checkHardware(NfcAdapter mAdapter) {
