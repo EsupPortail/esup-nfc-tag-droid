@@ -2,6 +2,7 @@ import java.text.DateFormat
 import java.text.SimpleDateFormat
 
 repositories {
+    jcenter()
     mavenCentral()
     google()
 }
@@ -48,6 +49,11 @@ android {
         targetSdkVersion 19
         versionCode 1
         versionName buildVersionName()
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
 
     signingConfigs {
