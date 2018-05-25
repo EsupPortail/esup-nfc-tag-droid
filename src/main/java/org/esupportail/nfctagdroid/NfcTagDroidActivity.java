@@ -65,6 +65,7 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.NetworkInterface;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -207,8 +208,10 @@ public class NfcTagDroidActivity extends Activity implements NfcAdapter.ReaderCa
                     NfcResultBean nfcResult = read(tag);
                     if (NfcResultBean.CODE.ERROR.equals(nfcResult.getCode())) {
                         log.warn(getString(R.string.log_msg_tag_ko));
-                        toastText = nfcResult.getMsg();
-                        runOnUiThread(ToastThread.getInstance(getApplicationContext(), rStatus, toastText));
+                        if(nfcResult.getMsg() == null || nfcResult.getMsg() == "") {
+                            toastText = getString(R.string.log_msg_tag_ko);
+                            runOnUiThread(ToastThread.getInstance(getApplicationContext(), rStatus, toastText));
+                        }
                         localStorageDBHelper.updateValue("readyToScan", "ok");
                     } else{
 
