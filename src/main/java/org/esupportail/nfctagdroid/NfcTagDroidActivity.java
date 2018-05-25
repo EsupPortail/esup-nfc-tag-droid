@@ -211,8 +211,13 @@ public class NfcTagDroidActivity extends Activity implements NfcAdapter.ReaderCa
                         runOnUiThread(ToastThread.getInstance(getApplicationContext(), rStatus, toastText));
                         localStorageDBHelper.updateValue("readyToScan", "ok");
                     } else{
+
                         rStatus = R.raw.success;
-                        log.info(getString(R.string.log_msg_tag_ok) + " : " + nfcResult.getFullApdu().replace("\n", " "));
+                        if(nfcResult.getFullApdu()!=null) {
+                            log.info(getString(R.string.log_msg_tag_ok) + " : " + nfcResult.getFullApdu().replace("\n", " "));
+                        }else{
+                            log.info(getString(R.string.log_msg_tag_ok) + " : " + nfcResult.getMsg());
+                        }
                     }
                 } catch (NfcTagDroidInvalidTagException e) {
                     log.info(getString(R.string.log_msg_invalid_auth), e);
