@@ -33,7 +33,7 @@ license {
 def buildVersionName() {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
     df.setTimeZone(TimeZone.getTimeZone("UTC"))
-    String versionName = "1-" + df.format(new Date())
+    String versionName = "2-" + df.format(new Date())
     File versionApkFile = new File(projectDir, "src/main/assets/versionApk.txt")
     versionApkFile.text = versionName
     return versionName
@@ -47,7 +47,7 @@ android {
         applicationId "org.esupportail.nfctagdroid"
         minSdkVersion 19
         targetSdkVersion 19
-        versionCode 1
+        versionCode 2
         versionName buildVersionName()
     }
 
