@@ -12,3 +12,5 @@
 /local.properties
 /src/main/assets/versionApk.txt
 /projectFilesBackup
+/release
+/debug

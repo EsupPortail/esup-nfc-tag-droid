@@ -1,7 +1,7 @@
 <configuration>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>/storage/emulated/0/org.esupportail.nfctagdroid/nfctagdroid.log</file>
+        <file>/storage/emulated/0/org.esupportail.esupnfctagdroid/nfctagdroid.log</file>
         <encoder>
             <pattern>%date{dd/MM/yyyy HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
@@ -26,7 +26,7 @@
         </layout>
     </appender>
 
-    <appender name="HTTP" class="org.esupportail.nfctagdroid.logback.HttpAppender">
+    <appender name="HTTP" class="org.esupportail.esupnfctagdroid.logback.HttpAppender">
         <hostname>esup-nfc-tag.univ-ville.fr/logs</hostname>
         <protocol>https</protocol>
     </appender>
@@ -37,7 +37,7 @@
         <appender-ref ref="EMAIL" />
     </root>
 
-    <logger name="org.esupportail.nfctagdroid" additivity="false">
+    <logger name="org.esupportail.esupnfctagdroid" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
@@ -45,7 +45,7 @@
         <appender-ref ref="HTTP" />
     </logger>
 
-    <logger name="org.esupportail.nfctagdroid.requestasync" additivity="false">
+    <logger name="org.esupportail.esupnfctagdroid.requestasync" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
