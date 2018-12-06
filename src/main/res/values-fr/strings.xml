@@ -18,29 +18,34 @@
 
 -->
 <resources>
-    <string name="app_name">EsupNfcTag</string>
+    <string name="app_name">EsupNfcTagDroid</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
     <string name="exit">Sortir</string>
+    <string name="esupnfctag_logo">EsupNfcTag Logo</string>
+    <string name="refresh">Refresh</string>
+
+    <string name="label_choose_server">Choisir un serveur EsupNfcTag</string>
+    <string name="label_btn_submit">Valider</string>
 
     <string name="msg_exit">Voulez-vous quitter l\'application</string>
-    <string name="msg_error_nfc">Cet appareil ne supporte pas le NFC</string>
-    <string name="msg_activ_nfc">Merci d\'activer le NFC</string>
     <string name="msg_activ_network">Merci d\'activer la connexion Internet</string>
+    <string name="msg_activ_nfc">Merci d\'activer le NFC</string>
+    <string name="msg_error_nfc">Cet appareil ne supporte pas le NFC</string>
     <string name="msg_tag_ko">Badge invalide</string>
     <string name="msg_tag_ok">Badge valide</string>
     <string name="msg_retry">Merci de réessayer</string>
     <string name="msg_unknow_err">Erreur inconnue</string>
     <string name="msg_json_err">Erreur de lecture du retour JSON</string>
     <string name="msg_auth_err">Authentification avortée</string>
-
-    <string name="log_msg_tag_ok">Badge valide avec le retour</string>
-    <string name="log_msg_tag_ko">Badge invalide</string>
-    <string name="log_msg_invalid_auth">LeodridInvalidTagException durant l\'authentification</string>
-    <string name="log_msg_retry_auth">LeodridPleaseRetryTagException durant l\'authentification</string>
-    <string name="log_msg_unknow_err">Erreur inconnue durant l\'authentification</string>
     <string name="msg_shib_err">Problème de securité Shib</string>
     <string name="msg_getApkVersion_err">Problème durant la récupération de la version de l\'application</string>
     <string name="msg_webview_ko">Erreur de chargement, merci de réessayer.</string>
+
+    <string name="log_msg_invalid_auth">LeodridInvalidTagException durant l\'authentification</string>
+    <string name="log_msg_retry_auth">LeodridPleaseRetryTagException durant l\'authentification</string>
+    <string name="log_msg_tag_ko">Badge invalide</string>
+    <string name="log_msg_tag_ok">Badge valide avec le retour</string>
+    <string name="log_msg_unknow_err">Erreur inconnue durant l\'authentification</string>
 
 </resources>

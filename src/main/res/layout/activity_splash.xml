@@ -36,7 +36,7 @@
         android:layout_marginStart="66dp"
         android:layout_marginTop="14dp"
         android:gravity="center"
-        android:text="EsupNfcTagDroid"
+        android:text="@string/app_name"
         android:textColor="@color/white"
         android:textSize="30sp" />
 
@@ -48,6 +48,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="13dp"
         android:layout_marginTop="8dp"
+        android:contentDescription="@string/esupnfctag_logo"
         android:src="@mipmap/ic_launcher" />
 
     <TextView
@@ -59,7 +60,7 @@
         android:layout_marginStart="0dp"
         android:layout_marginTop="121dp"
         android:gravity="center"
-        android:text="Choisir un serveur esupNfcTag"
+        android:text="@string/label_choose_server"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
     <Spinner
@@ -78,7 +79,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="274dp"
-        android:text="Valider" />
+        android:text="@string/label_btn_submit" />
 
     <ImageButton
         android:id="@+id/button_refresh"
@@ -89,7 +90,10 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="10dp"
         android:clickable="true"
+        android:focusable="true"
         android:scaleType="fitCenter"
-        android:src="@drawable/syncaltsolid" />
+        android:src="@drawable/syncaltsolid"
+        android:text="@string/refresh"
+        android:contentDescription="@string/refresh" />
 
 </RelativeLayout>

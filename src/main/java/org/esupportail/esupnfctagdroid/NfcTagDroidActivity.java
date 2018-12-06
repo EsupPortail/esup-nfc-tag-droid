@@ -331,7 +331,7 @@ public class NfcTagDroidActivity extends Activity implements NfcAdapter.ReaderCa
 
                 byte[] macBytes = nif.getHardwareAddress();
                 if (macBytes == null) {
-                    return "";
+                    return "no mac";
                 }
 
                 StringBuilder res1 = new StringBuilder();
@@ -347,7 +347,7 @@ public class NfcTagDroidActivity extends Activity implements NfcAdapter.ReaderCa
         } catch (Exception e) {
             throw new NfcTagDroidException("can't get mac address", e);
         }
-        return "";
+        return "02:00:00:00:00:00";
     }
 
 }

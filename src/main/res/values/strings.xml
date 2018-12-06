@@ -18,26 +18,35 @@
 
 -->
 <resources>
-    <string name="app_name">EsupNfcTag</string>
+    <string name="app_name">EsupNfcTagDroid</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="exit">Exit</string>
+    <string name="esupnfctag_logo">EsupNfcTag Logo</string>
+    <string name="refresh">Refresh</string>
+
+    <string name="label_choose_server">Choose EsupNfcTag Server</string>
+    <string name="label_btn_submit">Submit</string>
+
     <string name="msg_exit">Do you want to exit ?</string>
+    <string name="msg_activ_network">Activate network please</string>
+    <string name="msg_activ_nfc">Activate NFC please</string>
+    <string name="msg_error_nfc">This device doesn\'t support NFC</string>
+    <string name="msg_tag_ko">Invalid tag</string>
+    <string name="msg_tag_ok">Valid tag found</string>
+    <string name="msg_retry">Retry please</string>
+    <string name="msg_unknow_err">Unknow error</string>
+    <string name="msg_json_err">Json callback error</string>
+    <string name="msg_auth_err">Authentication aborted</string>
+    <string name="msg_shib_err">Shib SSL Exception</string>
+    <string name="msg_getApkVersion_err">Error getting apk version</string>
+    <string name="msg_webview_ko">Error loading web view, please retry.</string>
+
     <string name="log_msg_invalid_auth">LeodridInvalidTagException during authentication</string>
     <string name="log_msg_retry_auth">LeodridPleaseRetryTagException during authentication</string>
     <string name="log_msg_tag_ko">Invalide tag scan</string>
     <string name="log_msg_tag_ok">Valid tag with return</string>
     <string name="log_msg_unknow_err">Unknow error during authentication</string>
-    <string name="msg_activ_network">Activate network please</string>
-    <string name="msg_activ_nfc">Activate NFC please</string>
-    <string name="msg_error_nfc">This device doesn\'t support NFC</string>
-    <string name="msg_json_err">Json callback error</string>
-    <string name="msg_retry">Retry please</string>
-    <string name="msg_tag_ko">Invalid tag</string>
-    <string name="msg_unknow_err">Unknow error</string>
-    <string name="msg_tag_ok">Valid tag found</string>
-    <string name="msg_auth_err">Authentication aborted</string>
-    <string name="msg_shib_err">Shib SSL Exception</string>
-    <string name="msg_getApkVersion_err">Error getting apk version</string>
-    <string name="msg_webview_ko">Error loading web view, please retry.</string>
+
+
 </resources>
