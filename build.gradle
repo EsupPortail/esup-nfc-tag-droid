@@ -42,7 +42,7 @@ android {
         applicationId "org.esupportail.esupnfctagdroid"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode 6
+        versionCode 7
         versionName buildVersionName()
     }
 

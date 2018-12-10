@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.support.annotation.NonNull;
@@ -20,8 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.esupportail.esupnfctagdroid.exceptions.NfcTagDroidException;
 import org.esupportail.esupnfctagdroid.localstorage.LocalStorage;
 import org.esupportail.esupnfctagdroid.requestasync.UrlsHttpRequestAsync;
-import org.esupportail.esupnfctagdroid.utils.PermissionListener;
-import org.esupportail.esupnfctagdroid.utils.RequestPermissionHandler;
+import org.esupportail.esupnfctagdroid.utils.RequestPermission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,25 +32,33 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 public class SplashActivity extends AppCompatActivity {
 
-    private static Logger log;
-    private RequestPermissionHandler mRequestPermissionHandler = new RequestPermissionHandler();
+    private static Logger log = LoggerFactory.getLogger(SplashActivity.class);
+    private static RequestPermission requestPermission;
+    private static View view;
     private static Spinner spinner;
     private static Button button;
     private static ImageButton buttonRefresh;
     private static LocalStorage localStorage;
     private static String urlsAddress = "";
+    private static String esupNfcTagServerUrl;
+    private static Properties esupnfctagProperties = new Properties();
+    private static InputStream esupnfctagPropertiesFile = null;
     private static final int time = 5000;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        try {
+            esupnfctagPropertiesFile = this.getApplicationContext().getAssets().open("esupnfctag.properties");
+            esupnfctagProperties.load(esupnfctagPropertiesFile);
+        } catch (IOException e) {
+            log.error("Enable to read propertie file");
+        }
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        String[] permissions = new String[] { Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_EXTERNAL_STORAGE };
-        mRequestPermissionHandler.requestPermission(this, permissions, 1, new PermissionListener(this));
-        log = LoggerFactory.getLogger(SplashActivity.class);
         localStorage = LocalStorage.getInstance(this);
         spinner = (Spinner) this.findViewById(R.id.spinner);
         button = (Button) this.findViewById(R.id.button);
@@ -63,40 +71,44 @@ public class SplashActivity extends AppCompatActivity {
         buttonRefresh = (ImageButton) this.findViewById(R.id.button_refresh);
         buttonRefresh.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                try {
-                    refreshSpinner();
-                } catch (IOException e) {
-                    throw new NfcTagDroidException("can't get property from properties files !", e);
-                }
+                refreshSpinner();
             }
         });
 
-        boolean splashScreen = false;
-        String esupNfcTagServerUrl = localStorage.getValue("esupnfctagurl");
-        String numeroId = localStorage.getValue("numeroId");
-        InputStream esupnfctagPropertiesFile = null;
-        try {
-            esupnfctagPropertiesFile = this.getApplicationContext().getAssets().open("esupnfctag.properties");
-            Properties esupnfctagProperties = new Properties();
-            esupnfctagProperties.load(esupnfctagPropertiesFile);
-            splashScreen = Boolean.valueOf(esupnfctagProperties.getProperty("splashScreen"));
-            urlsAddress = esupnfctagProperties.getProperty("urlsAddress");
-            if(!splashScreen) {
-                esupNfcTagServerUrl = esupnfctagProperties.getProperty("esupNfcTagServerUrl");
-                launchNfcTag(esupNfcTagServerUrl);
+        view = (View) findViewById(R.id.splash);
+        view.setVisibility(View.INVISIBLE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermission = new RequestPermission(this, 0);
+            String[] permissions = new String[] { Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.INTERNET};
+            String[] unGrantedPermissions = requestPermission.findUnGrantedPermissions(permissions);
+            if (unGrantedPermissions.length == 0) {
+                checkParams();
             } else {
-                if(esupNfcTagServerUrl != null && !esupNfcTagServerUrl.equals("") && numeroId != null && !numeroId.equals("")) {
-                    launchNfcTag(esupNfcTagServerUrl);
-                } else {
-                    refreshSpinner();
-                }
+                requestPermission.requestPermission(permissions);
             }
-        } catch (IOException e) {
-            throw new NfcTagDroidException("can't get property from properties files !", e);
+        } else {
+            checkParams();
         }
     }
 
-    private void refreshSpinner() throws IOException {
+    private void checkParams() {
+        boolean splashScreen = Boolean.valueOf(esupnfctagProperties.getProperty("splashScreen"));
+        if(!splashScreen) {
+            launchNfcTag(esupnfctagProperties.getProperty("esupNfcTagServerUrl"));
+        } else {
+            String numeroId = localStorage.getValue("numeroId");
+            String esupNfcTagUrl = localStorage.getValue("esupNfcTagUrl");
+            if(esupNfcTagUrl != null && !esupNfcTagUrl.equals("") && numeroId != null && !numeroId.equals("")) {
+                launchNfcTag(esupNfcTagUrl);
+            } else {
+                view.setVisibility(View.VISIBLE);
+                urlsAddress = esupnfctagProperties.getProperty("urlsAddress");
+                refreshSpinner();
+            }
+        }
+    }
+
+    private void refreshSpinner() {
         String urls = null;
         if(urlsAddress != null && !urlsAddress.equals("")) {
             try {
@@ -123,10 +135,15 @@ public class SplashActivity extends AppCompatActivity {
                 urls = localUrls;
                 log.info("local URLS " + urls);
             } else {
-                InputStream fileUrls = this.getApplicationContext().getAssets().open("urls");
-                urls = IOUtils.toString(fileUrls, "UTF8");
-                localStorage.updateValue("urls", urls);
-                log.info("file URLS " + urls);
+                InputStream fileUrls = null;
+                try {
+                    fileUrls = this.getApplicationContext().getAssets().open("urls");
+                    urls = IOUtils.toString(fileUrls, "UTF8");
+                    localStorage.updateValue("urls", urls);
+                    log.info("file URLS " + urls);
+                } catch (IOException e) {
+                    log.error("enable to read urls file");
+                }
             }
         }
         String[] arraySpinner = urls.split("\n");
@@ -141,15 +158,24 @@ public class SplashActivity extends AppCompatActivity {
         intent.putExtra("url", url);
         startActivity(intent);
         finish();
-
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        mRequestPermissionHandler.onRequestPermissionsResult(requestCode, permissions,
-                grantResults);
+        if (requestCode == requestPermission.getRequestCode()) {
+            if (grantResults.length > 0) {
+                for (int grantResult : grantResults) {
+                    if (grantResult != PERMISSION_GRANTED) {
+                        finish();
+                        return;
+                    }
+                }
+                checkParams();
+            } else {
+                finish();
+            }
+        }
     }
 
     @Override
@@ -166,7 +192,6 @@ public class SplashActivity extends AppCompatActivity {
                             Process.killProcess(Process.myPid());
                             System.exit(1);
                         }
-
                     })
                     .setNegativeButton(R.string.no, null)
                     .show();

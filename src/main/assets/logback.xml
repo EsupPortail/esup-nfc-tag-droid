@@ -12,6 +12,7 @@
             <pattern>%date{dd/MM/yyyy HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    <!--
     <appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
         <evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
             <marker>NOTIFY_ADMIN</marker>
@@ -25,24 +26,23 @@
             <pattern>%date %-5level %logger{35} - %message%n</pattern>
         </layout>
     </appender>
-
     <appender name="HTTP" class="org.esupportail.esupnfctagdroid.logback.HttpAppender">
         <hostname>esup-nfc-tag.univ-ville.fr/logs</hostname>
         <protocol>https</protocol>
     </appender>
-
+-->
     <root level="DEBUG">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
-        <appender-ref ref="EMAIL" />
+        <!--<appender-ref ref="EMAIL" />-->
     </root>
 
     <logger name="org.esupportail.esupnfctagdroid" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
-        <appender-ref ref="EMAIL" />
-        <appender-ref ref="HTTP" />
+        <!--<appender-ref ref="EMAIL" />-->
+        <!--<appender-ref ref="HTTP" />-->
     </logger>
 
     <logger name="org.esupportail.esupnfctagdroid.requestasync" additivity="false">

@@ -17,12 +17,13 @@
  */
 package org.esupportail.esupnfctagdroid;
 
-import android.annotation.SuppressLint;
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -33,6 +34,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.view.KeyEvent;
 import android.view.View;
@@ -79,40 +81,43 @@ public class NfcTagDroidActivity extends Activity implements NfcAdapter.ReaderCa
     private static String url;
     private static ProgressBar progressBar = null;
 
-    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         localStorage = LocalStorage.getInstance(this);
-        ESUP_NFC_TAG_SERVER_URL = localStorage.getValue("esupnfctagurl");
+        ESUP_NFC_TAG_SERVER_URL = localStorage.getValue("esupNfcTagUrl");
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             String urlExtra = extras.getString("url");
             if (urlExtra != null && !urlExtra.equals("")) {
                 ESUP_NFC_TAG_SERVER_URL = urlExtra;
-                localStorage.updateValue("esupnfctagurl", ESUP_NFC_TAG_SERVER_URL);
+                localStorage.updateValue("esupNfcTagUrl", ESUP_NFC_TAG_SERVER_URL);
             }
         }
         log.info("connecting to " + ESUP_NFC_TAG_SERVER_URL);
         CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
         Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(getApplicationContext()));
-        setContentView(R.layout.activity_main);
         mAdapter = NfcAdapter.getDefaultAdapter(this);
         view = (WebView) findViewById(R.id.webView);
         checkHardware(mAdapter);
         String numeroId = localStorage.getValue("numeroId");
         String imei = "EsupNfcTagDroid";
-        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        imei = telephonyManager.getDeviceId();
         url = ESUP_NFC_TAG_SERVER_URL + "/nfc-index?numeroId=" + numeroId + "&imei=" + imei + "&macAddress=" + getMacAddr();
         progressBar = (ProgressBar) findViewById(R.id.loadingPanel);
         view.clearCache(true);
         view.addJavascriptInterface(new LocalStorageJavaScriptInterface(this), "AndroidLocalStorage");
         view.addJavascriptInterface(new AndroidJavaScriptInterface(this), "Android");
         view.getSettings().setSaveFormData(false);
+        TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             view.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                imei = telephonyManager.getImei();
+            }
+        } else {
+            imei = telephonyManager.getDeviceId();
         }
         view.setWebChromeClient(new WebChromeClient() {
 
@@ -139,8 +144,6 @@ public class NfcTagDroidActivity extends Activity implements NfcAdapter.ReaderCa
                 return true;
             }
         });
-
-        view.getSettings().setAllowContentAccess(true);
 
         WebSettings webSettings = view.getSettings();
         webSettings.setJavaScriptEnabled(true);
