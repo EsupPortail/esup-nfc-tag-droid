@@ -35,14 +35,14 @@ def buildVersionName() {
 }
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "org.esupportail.esupnfctagdroid"
         minSdkVersion 21
-        targetSdkVersion 26
-        versionCode 7
+        targetSdkVersion 28
+        versionCode 9
         versionName buildVersionName()
     }
 
