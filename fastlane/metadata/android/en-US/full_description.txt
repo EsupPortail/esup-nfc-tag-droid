@@ -1,0 +1,20 @@
+ESUP-NFC-TAG-DROID works as a client of an ESUP-NFC-TAG server.
+Android 5 (or +) and NFC support on the smartphone (or tablet) are required.
+
+Operation:
+  * The user selects the ESUP-NFC-TAG server from his institution.
+  * It authenticates itself.
+  * According to its rights and the setting of ESUP-NFC-TAG, a number of 'rooms' of badging are presented.
+  * The user selects a 'room'.
+  * It can then badger multi-service cards.
+
+This application is only useful in the framework of use predefined by the establishment.
+In other words, if you find this application by chance on the Google Play Store, it is that it is not intended for you and it will be of no use to you.
+
+This application is open-source (free) as the entire project esup-sgc / esup-nfc-tag.
+The official page of ESUP-NFC-TAG-DROID is here:
+https://www.esup-portail.org/wiki/display/ESUPNFC/ESUP-NFC-TAG-DROID
+
+If you are responsible for an esup-nfc-tag server from an ESR facility that you want your esup-nfc-tag server to appear in the list of available servers, you can request it through a Pull Request proposing the modification of the list of available urls:
+https://github.com/EsupPortail/esup-nfc-tag-droid/blob/master/src/main/assets/urls
+

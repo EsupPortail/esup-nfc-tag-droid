@@ -1,0 +1,3 @@
+ESUP-NFC-TAG-DROID works as a client of an ESUP-NFC-TAG server.
+Android 5 (or +) and NFC support on the smartphone (or tablet) are required.
+
