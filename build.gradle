@@ -28,21 +28,21 @@ license {
 }
 
 def buildVersionName() {
-    String versionName = "1.2.1"
+    String versionName = "1.2.4"
     File versionApkFile = new File(projectDir, "src/main/assets/versionApk.txt")
     versionApkFile.text = versionName
     return versionName
 }
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 33
+    buildToolsVersion '33.0.0'
 
     defaultConfig {
         applicationId "org.esupportail.esupnfctagdroid"
         minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 9
+        targetSdkVersion 33
+        versionCode 15
         versionName buildVersionName()
     }
 
