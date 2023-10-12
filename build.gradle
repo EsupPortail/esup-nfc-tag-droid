@@ -15,7 +15,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
     }
 }
@@ -73,12 +73,18 @@ android {
     packagingOptions {
         exclude 'META-INF/NOTICE' // will not include NOTICE file
         exclude 'META-INF/LICENSE' // will not include LICENSE file
+        exclude 'AndroidManifest.xml'
+        exclude 'resources.arsc'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 
 dependencies {
-    api 'com.android.support:appcompat-v7:26.1.0'
+    api 'com.android.support:appcompat-v7:28.0.0'
     api 'org.slf4j:slf4j-api:1.7.19'
     api 'com.github.tony19:logback-android-classic:1.1.1-4'
     api 'com.github.tony19:logback-android-core:1.1.1-4'
