@@ -77,7 +77,16 @@ public class SplashActivity extends AppCompatActivity {
 
         view = (View) findViewById(R.id.splash);
         view.setVisibility(View.INVISIBLE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermission = new RequestPermission(this, 0);
+            String[] permissions = new String[] { Manifest.permission.READ_PHONE_STATE, Manifest.permission.INTERNET};
+            String[] unGrantedPermissions = requestPermission.findUnGrantedPermissions(permissions);
+            if (unGrantedPermissions.length == 0) {
+                checkParams();
+            } else {
+                requestPermission.requestPermission(permissions);
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermission = new RequestPermission(this, 0);
             String[] permissions = new String[] { Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.INTERNET};
             String[] unGrantedPermissions = requestPermission.findUnGrantedPermissions(permissions);
