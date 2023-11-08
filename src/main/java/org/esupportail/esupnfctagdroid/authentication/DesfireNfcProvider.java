@@ -75,7 +75,11 @@ public class DesfireNfcProvider {
                     throw new NfcTagDroidException(e);
                 }
 
-                if (!NfcResultBean.CODE.END.equals(nfcResult.getCode()) && !NfcResultBean.CODE.ERROR.equals(nfcResult.getCode())) {
+                if(NfcResultBean.CODE.CONTINUE.equals(nfcResult.getCode())) {
+                    log.warn("desfire error but esup-nfc-tag-server requests to continue ... " + result);
+                    // result to empty to restart fresh apdus sequence...
+                    result = "";
+                } else if (!NfcResultBean.CODE.END.equals(nfcResult.getCode()) && !NfcResultBean.CODE.ERROR.equals(nfcResult.getCode())) {
                     String command = nfcResult.getFullApdu();
                     log.debug("command to send: " + command);
                     byte[] byteResult = isoDep.transceive(HexaUtils.hexStringToByteArray(command));

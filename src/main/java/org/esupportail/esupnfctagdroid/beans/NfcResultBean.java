@@ -25,7 +25,8 @@ public class NfcResultBean {
     public static enum CODE {
         ERROR,
         OK,
-        END
+        END,
+        CONTINUE
     }
 
     private CODE code;
