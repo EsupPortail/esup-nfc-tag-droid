@@ -15,7 +15,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:8.1.2'
         classpath 'gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1'
     }
 }
@@ -28,21 +28,21 @@ license {
 }
 
 def buildVersionName() {
-    String versionName = "1.2.6"
+    String versionName = "1.2.7"
     File versionApkFile = new File(projectDir, "src/main/assets/versionApk.txt")
     versionApkFile.text = versionName
     return versionName
 }
 
 android {
-    compileSdkVersion 33
-    buildToolsVersion '33.0.0'
+
+    compileSdk 34
 
     defaultConfig {
         applicationId "org.esupportail.esupnfctagdroid"
         minSdkVersion 21
-        targetSdkVersion 33
-        versionCode 17
+        targetSdkVersion 34
+        versionCode 18
         versionName buildVersionName()
     }
 
@@ -80,6 +80,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'org.esupportail.esupnfctagdroid'
 }
 
 
